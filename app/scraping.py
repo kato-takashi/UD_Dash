@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
 import requests
-import pandas as pd
+from assets.database import db_session
+from assets.models import Data
+
 import datetime
 
 #関数化
@@ -31,21 +33,18 @@ def get_udemy_info():
 #CSV読み込み
 #csvデータの読み込み
 def write_data():
-    df = pd.read_csv('assets/data.csv')
     _result = get_udemy_info()
 
     #書き込むデータ
-    date = datetime.datetime.today().strftime('%Y/%-m/%-d')
+    date = datetime.date.today()
     subscribers = _result['n_subscribers']
     reviews = _result['n_reviews']
 
-    #スクレイピングの結果
-    scraping_result = pd.DataFrame([[date, subscribers, reviews]], columns=['date','subscribers','reviews'])
-    # print(scraping_result)
-    #最新のスクレイピングの結果をcsvデータに結合
-    scraping_df = pd.concat([df, scraping_result])
-    print(scraping_df.tail())
-    scraping_df.to_csv('assets/data.csv', index=False)
+    #sql3
+    row = Data(date=tate, subscribers=subscribers, reviews=reviews)
+    db_session.add(row)
+    db_session.commit()
+    # print(scraping_df.tail())
 
 if __name__ == '__main__':
     write_data()
